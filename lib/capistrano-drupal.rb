@@ -2,6 +2,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   require 'capistrano/recipes/deploy/scm'
   require 'capistrano/recipes/deploy/strategy'
+  require 'capistrano/ext/multistage'
   
   # =========================================================================
   # These variables may be set in the client capfile if their default values
@@ -19,6 +20,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :group_writable, false
   
   set(:deploy_to) { "/var/www/#{application}" }
+
   set(:app_path) { "#{deploy_to}/current" }
   set :shared_children, ['files', 'private']
     
@@ -30,7 +32,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :multisite, false
   set :sites, ['default']
 
-  after "deploy:update_code", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
+  after "deploy:update_code", "drupal:stage_settings", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
   after "deploy", "git:push_deploy_tag"
   
   namespace :deploy do
@@ -92,6 +94,16 @@ Capistrano::Configuration.instance(:must_exist).load do
         :site_files.each do |config_file|
           run "rm -rf #{app_path}/#{config_file} && ln -nfs #{shared_path}/#{config_file} #{app_path}/sites/default/#{config_file}"
         end
+      end
+    end
+
+    # use different setting.php files for different stages
+    desc "Use the stage-specific settings.php"
+    task :stage_settings do
+      :sites.each do |site_folder|
+        source = "#{app_path}/sites/#{site_folder}/settings.#{stage_name}.php" 
+        dest = "#{app_path}/sites/#{site_folder}/settings.php"
+        run "#{try_sudo}  cp #{source} #{dest}"
       end
     end
 
