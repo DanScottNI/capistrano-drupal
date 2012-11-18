@@ -19,11 +19,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :group_writable, false
   
   set(:deploy_to) { "/var/www/#{application}" }
-<<<<<<< HEAD
   set(:app_path) { "#{deploy_to}/current" }
   set :shared_children, ['files', 'private']
     
-=======
   set :site_dirs, ['files', 'private']
   set :site_files, ['settings.php']
   set :shared_dirs, ['files']
@@ -32,7 +30,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :multisite, false
   set :sites, ['default']
 
->>>>>>> c424f6e... Multisite deploys
   after "deploy:update_code", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
   after "deploy", "git:push_deploy_tag"
   
@@ -97,14 +94,9 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
       end
     end
-<<<<<<< HEAD
-  end
-  
-=======
 
   end
 
->>>>>>> c424f6e... Multisite deploys
   namespace :git do
 
     desc "Place release tag into Git and push it to origin server."
