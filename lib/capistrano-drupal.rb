@@ -2,7 +2,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   require 'capistrano/recipes/deploy/scm'
   require 'capistrano/recipes/deploy/strategy'
-  require 'capistrano/ext/multistage'
+  #require 'capistrano/ext/multistage'
   
   # =========================================================================
   # These variables may be set in the client capfile if their default values
@@ -11,26 +11,19 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   set :scm, :git
   set :deploy_via, :remote_cache
-  _cset :branch, "master"
-  set :git_enable_submodules, true
   
-  set :drush_cmd, "drush"
+  _cset(:drush_cmd)     { "drush" }
   
-  set :runner_group, "www-data"
-  set :group_writable, false
+  set :runner_group,    "www-data"
+  set :group_writable,  false
   
-  set(:deploy_to) { "/var/www/#{application}" }
-
-  set(:app_path) { "#{deploy_to}/current" }
-  set :shared_children, ['files', 'private']
-    
-  set :site_dirs, ['files', 'private']
-  set :site_files, ['settings.php']
-  set :shared_dirs, ['files']
+  set :site_dirs,     ['files', 'private']
+  set :site_files,    ['settings.php']
+  set :shared_dirs,   ['files']
 
   # Set :multisite to true to trigger multisite processing
-  set :multisite, false
-  set :sites, ['default']
+  _cset(:multisite)   { false }
+  _cset(:sites)       { ['default'] }
 
   after "deploy:update_code", "drupal:stage_settings", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
   after "deploy", "git:push_deploy_tag"
@@ -57,6 +50,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
   
+  # @TODO finalize permissions
   namespace :drupal do
 
     desc "Symlink settings and files to shared directory. This allows the settings.php and \
@@ -64,45 +58,43 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :symlink_shared do
 
       # Multisite install use sub-folders under :shared_path
-      if :multisite
+      if multisite
         # Iterate over sites folders and pack their contents into the shared directory.
-        :sites.each do |cdir|
+        sites.each do |cdir|
           run "if [ ! -d \"#{shared_path}/#{cdir}\" ] ; then mkdir #{shared_path}/#{cdir}; fi"
-          :site_dirs.each do |asset|
+          site_dirs.each do |asset|
             run "if [ ! -d \"#{shared_path}/#{cdir}/#{asset}\" ] ; then mkdir #{shared_path}/#{cdir}/#{asset}; fi"
             run "rm -rf #{app_path}/sites/#{cdir}/#{asset} && ln -nfs #{shared_path}/#{cdir}/#{asset} #{app_path}/sites/#{cdir}/#{asset}"
           end
-          :site_files.each do |config_file|
+          site_files.each do |config_file|
             run "rm -rf #{app_path}/sites/#{cdir}/#{config_file} && ln -nfs #{shared_path}/#{cdir}/#{config_file} #{app_path}/sites/#{cdir}/#{config_file}"
           end
-        end
+       end
 
-        # Folders in :shared_dirs, for example /files, go in a shared location.
-        run "if [ ! -d \"#{shared_path}/shared\" ] ; then mkdir #{shared_path}/shared; fi"
-        :shared_dirs.each do |rootasset|
-          run "if [ ! -d \"#{shared_path}/shared/#{rootasset}\" ] ; then mkdir #{shared_path}/shared/#{rootasset}; fi"
-          run "rm -rf #{app_path}/#{rootasset} && ln -nfs #{shared_path}/shared/#{rootasset} #{app_path}/#{rootasset}"
-        end
+     #  # Folders in :shared_dirs, for example /files, go in a shared location.
+     #  run "if [ ! -d \"#{shared_path}/shared\" ] ; then mkdir #{shared_path}/shared; fi"
+     #  :shared_dirs.each do |rootasset|
+     #    run "if [ ! -d \"#{shared_path}/shared/#{rootasset}\" ] ; then mkdir #{shared_path}/shared/#{rootasset}; fi"
+     #    run "rm -rf #{app_path}/#{rootasset} && ln -nfs #{shared_path}/shared/#{rootasset} #{app_path}/#{rootasset}"
+     #  end
 
-      # Single site (standard) installs use :shared_path as the default site folder.
-      # It is not possible to switch from single to multisite without manually
-      # moving directories.
+     ## Single site (standard) installs use :shared_path as the default site folder.
+     ## It is not possible to switch from single to multisite without manually
+     ## moving directories.
       else
-        :site_dirs.each do |asset|
-          run "rm -rf #{app_path}/#{asset} && ln -nfs #{shared_path}/#{asset} #{app_path}/sites/default/#{asset}"
-        end
-        :site_files.each do |config_file|
-          run "rm -rf #{app_path}/#{config_file} && ln -nfs #{shared_path}/#{config_file} #{app_path}/sites/default/#{config_file}"
+        site_dirs.each do |asset|
+          run "rm -rf #{app_path}/sites/default/#{asset} && ln -nfs #{shared_path}/#{asset} #{app_path}/sites/default/#{asset}"
         end
       end
     end
 
     # use different setting.php files for different stages
-    desc "Use the stage-specific settings.php"
+    # @TODO use generic settings and insert data from deploy-configs
+    desc "Use the stage-specific settings.php #{sites}"
     task :stage_settings do
-      :sites.each do |site_folder|
-        source = "#{app_path}/sites/#{site_folder}/settings.#{stage_name}.php" 
-        dest = "#{app_path}/sites/#{site_folder}/settings.php"
+      sites.each do |site_folder|
+        source  = "#{app_path}/sites/#{site_folder}/settings.#{stage_name}.php" 
+        dest    = "#{app_path}/sites/#{site_folder}/settings.php"
         run "#{try_sudo}  cp #{source} #{dest}"
       end
     end
@@ -129,28 +121,28 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Backup the database"
     task :backupdb, :on_error => :continue do
-      :sites.each do |site_folder|
+      sites.each do |site_folder|
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} bam-backup"
       end
     end
 
     desc "Run Drupal database migrations if required"
     task :updatedb, :on_error => :continue do
-      :sites.each do |site_folder|
+      sites.each do |site_folder|
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} updatedb -y"
       end
     end
 
     desc "Clear the drupal cache"
     task :cache_clear, :on_error => :continue do
-      :sites.each do |site_folder|
+      sites.each do |site_folder|
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} cc all"
       end
     end
     
     desc "Set the site offline"
     task :site_offline, :on_error => :continue do
-      :sites.each do |site_folder|
+      sites.each do |site_folder|
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset site_offline 1 -y"
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset maintenance_mode 1 -y"
       end
@@ -158,7 +150,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Set the site online"
     task :site_online, :on_error => :continue do
-      :sites.each do |site_folder|
+      sites.each do |site_folder|
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset site_offline 0 -y"
         run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset maintenance_mode 0 -y"
       end
