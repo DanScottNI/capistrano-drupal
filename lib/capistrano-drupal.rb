@@ -25,7 +25,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   _cset(:multisite)   { false }
   _cset(:sites)       { ['default'] }
 
-  after "deploy:update_code", "drupal:stage_settings", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
+  after "deploy:update_code", "drupal:stage_settings", "drupal:stage_htaccess", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
   after "deploy", "git:push_deploy_tag"
   
   namespace :deploy do
@@ -97,6 +97,15 @@ Capistrano::Configuration.instance(:must_exist).load do
         dest    = "#{app_path}/sites/#{site_folder}/settings.php"
         run "#{try_sudo}  cp #{source} #{dest}"
       end
+    end
+
+    # use different .htaccess files for different stages
+    # @TODO use generic settings and insert data from deploy-configs
+    desc "Use the stage-specific .htaccess #{sites}"
+    task :stage_htaccess do
+      source  = "#{app_path}/.htaccess.#{stage_name}" 
+      dest    = "#{app_path}/.htaccess"
+      run "#{try_sudo}  cp #{source} #{dest}"
     end
 
   end
