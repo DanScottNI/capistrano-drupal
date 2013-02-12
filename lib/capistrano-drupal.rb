@@ -17,9 +17,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :runner_group,    "www-data"
   set :group_writable,  false
   
-  set :site_dirs,     ['files', 'private']
+  set :site_dirs,     ['files', 'private', 'tmp']
   set :site_files,    ['settings.php']
-  set :shared_dirs,   ['files']
+  set :shared_dirs,   ['files', 'tmp']
 
   # Set :multisite to true to trigger multisite processing
   _cset(:multisite)   { false }
