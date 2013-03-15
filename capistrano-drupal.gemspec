@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{capistrano-drupal}
-  s.version = "0.1.5"
+  s.name = "capistrano-drupal"
+  s.version = "0.1.9"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Kim Pepper"]
-  s.date = %q{2012-01-25}
-  s.description = %q{A set of tasks for deploying Drupal projects with Capistrano. Includes tasks for configuring apache and mysql}
-  s.email = %q{kim@previousnext.com.au}
+  s.authors = ["Kim Pepper", "tekay"]
+  s.date = "2013-03-15"
+  s.description = "A set of tasks for deploying Drupal projects with Capistrano. Includes tasks for configuring apache and mysql"
+  s.email = "tk@ibotic.net"
   s.extra_rdoc_files = [
     "README.markdown"
   ]
@@ -22,16 +22,15 @@ Gem::Specification.new do |s|
     "capistrano-drupal.gemspec",
     "lib/capistrano-drupal.rb"
   ]
-  s.homepage = %q{http://github.com/previousnext/capistrano-drupal/}
+  s.homepage = "http://github.com/tekay/capistrano-drupal/"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
-  s.summary = %q{A set of tasks for deploying Drupal projects with Capistrano}
+  s.rubygems_version = "1.8.24"
+  s.summary = "A set of tasks for deploying Drupal projects with Capistrano"
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
     else
     end
   else
