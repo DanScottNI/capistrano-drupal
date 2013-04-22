@@ -25,7 +25,12 @@ Finally install the capistrano-drupal recipes as a gem.
 
 ### Building
 
-You can build capistrano-drupal like this:
+This project uses [Jeweler](https://github.com/technicalpickles/jeweler) (`gem install jeweler`) to build and install the gem.
+
+    $ cd {capistrano-drupal-DIRECTORY}
+    $ rake install
+
+Not using Jeweler you can build capistrano-drupal like this:
 
     $ cd {capistrano-drupal-DIRECTORY}
     $ gem build capistrano-drupal.gemspec
