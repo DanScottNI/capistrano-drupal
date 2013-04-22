@@ -13,6 +13,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :deploy_via, :remote_cache
   
   _cset(:drush_cmd)     { "drush" }
+  _cset(:backup_dest)   { "manual" }
   
   set :runner_group,    "www-data"
   set :group_writable,  false
@@ -139,7 +140,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Backup the database"
     task :backupdb, :on_error => :continue do
       sites.each do |site_folder|
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} bam-backup"
+        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} bam-backup db #{backup_dest}"
       end
     end
 
