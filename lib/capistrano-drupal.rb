@@ -92,12 +92,6 @@ Capistrano::Configuration.instance(:must_exist).load do
           end
        end
 
-     #  # Folders in :shared_dirs, for example /files, go in a shared location.
-     #  run "if [ ! -d \"#{shared_path}/shared\" ] ; then mkdir #{shared_path}/shared; fi"
-     #  :shared_dirs.each do |rootasset|
-     #    run "if [ ! -d \"#{shared_path}/shared/#{rootasset}\" ] ; then mkdir #{shared_path}/shared/#{rootasset}; fi"
-     #    run "rm -rf #{app_path}/#{rootasset} && ln -nfs #{shared_path}/shared/#{rootasset} #{app_path}/#{rootasset}"
-     #  end
 
      ## Single site (standard) installs use :shared_path as the default site folder.
      ## It is not possible to switch from single to multisite without manually
