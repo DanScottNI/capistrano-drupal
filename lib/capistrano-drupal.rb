@@ -60,8 +60,13 @@ Capistrano::Configuration.instance(:must_exist).load do
       dirs = [deploy_to, releases_path, shared_path].join(' ')
       run "#{try_sudo} mkdir -p #{releases_path} #{shared_path}"
       run "#{try_sudo} chown -R #{user}:#{runner_group} #{deploy_to}"
-      sub_dirs = shared_children.map { |d| File.join(shared_path, d) }
-      run "#{try_sudo} chmod 2775 #{sub_dirs.join(' ')}"
+      site_dirs.each do |asset|
+        run "if [ ! -d \"#{shared_path}/#{asset}\" ] ; then #{try_sudo} mkdir #{shared_path}/#{asset}; fi"
+        run "#{try_sudo} chmod -R g+rw #{shared_path}/#{asset}"
+        run "#{try_sudo} chgrp -R www-data #{shared_path}/#{asset}"
+      end
+      # sub_dirs = shared_children.map { |d| File.join(shared_path, d) }
+      # run "#{try_sudo} chmod 2775 #{sub_dirs.join(' ')}"
     end
   end
   
