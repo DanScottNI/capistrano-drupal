@@ -18,9 +18,15 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :runner_group,    "www-data"
   set :group_writable,  false
   
-  set :site_dirs,     ['files', 'private', 'tmp']
+  set :site_dirs,     ['files', 'tmp', 'private']
   set :site_files,    ['settings.php']
-  set :shared_dirs,   ['files', 'tmp']
+  set :shared_dirs,   ['files', 'tmp', 'private']
+
+  # Defaults
+  _cset(:deploy_to)   { "/var/www" }
+  _cset(:shared_path) { "#{deploy_to}/shared" }
+  _cset(:releases_path){ "#{deploy_to}/releases" }
+  _cset(:app_path)    {"#{releases_path}/#{release_name}/app"}
 
   # Set :multisite to true to trigger multisite processing
   _cset(:multisite)   { false }
