@@ -78,6 +78,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :symlink_shared do
 
       # Multisite install use sub-folders under :shared_path
+      # @TODO untested
       if multisite
         # Iterate over sites folders and pack their contents into the shared directory.
         sites.each do |cdir|
