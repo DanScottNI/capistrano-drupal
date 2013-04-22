@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = "capistrano-drupal"
-  s.version = "0.1.9"
+  s.version = "0.1.91"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Kim Pepper", "tekay"]
-  s.date = "2013-03-15"
+  s.authors = ["Kim Pepper", "t3k4y"]
+  s.date = "2013-04-22"
   s.description = "A set of tasks for deploying Drupal projects with Capistrano. Includes tasks for configuring apache and mysql"
-  s.email = "tk@ibotic.net"
+  s.email = "tk at ibotic.net"
   s.extra_rdoc_files = [
     "README.markdown"
   ]
@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
     "capistrano-drupal.gemspec",
     "lib/capistrano-drupal.rb"
   ]
-  s.homepage = "http://github.com/tekay/capistrano-drupal/"
+  s.homepage = "http://github.com/t3k4y/capistrano-drupal/"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
   s.summary = "A set of tasks for deploying Drupal projects with Capistrano"
