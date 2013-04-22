@@ -98,6 +98,7 @@ Capistrano::Configuration.instance(:must_exist).load do
      ## moving directories.
       else
         site_dirs.each do |asset|
+          run "if [ ! -d \"#{shared_path}/#{asset}\" ] ; then mkdir #{shared_path}/#{asset}; fi"
           run "rm -rf #{app_path}/sites/default/#{asset} && ln -nfs #{shared_path}/#{asset} #{app_path}/sites/default/#{asset}"
         end
       end
