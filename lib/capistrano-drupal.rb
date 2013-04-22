@@ -25,7 +25,15 @@ Capistrano::Configuration.instance(:must_exist).load do
   _cset(:multisite)   { false }
   _cset(:sites)       { ['default'] }
 
-  after "deploy:update_code", "drupal:stage_settings", "drupal:stage_htaccess", "drupal:symlink_shared", "drush:site_offline", "drush:updatedb", "drush:cache_clear", "drush:site_online"
+  after "deploy:update_code", 
+        "drupal:stage_settings", 
+        "drupal:stage_htaccess", 
+        "drupal:symlink_shared", 
+        "drush:site_offline", 
+        "drush:backupdb", 
+        "drush:updatedb", 
+        "drush:cache_clear", 
+        "drush:site_online"
   after "deploy", "git:push_deploy_tag"
   
   namespace :deploy do
