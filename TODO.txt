@@ -1,3 +1,4 @@
 # TODO
 
 * compile compass for compass enabled projects (config var + task)
+* resort offline/online sequence
