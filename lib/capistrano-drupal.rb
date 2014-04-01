@@ -71,7 +71,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # run "#{try_sudo} chmod 2775 #{sub_dirs.join(' ')}"
     end
   end
-  
+
   # @TODO finalize permissions
   namespace :drupal do
 
@@ -110,9 +110,9 @@ Capistrano::Configuration.instance(:must_exist).load do
     # @TODO use generic settings and insert data from deploy-configs
     desc "Use the stage-specific settings.php #{sites}"
     task :stage_settings do
-      sites.each do |site_folder|
-        source  = "#{app_path}/sites/#{site_folder}/settings.#{stage_name}.php" 
-        dest    = "#{app_path}/sites/#{site_folder}/settings.php"
+      sites.each do |site|
+        source  = "#{app_path}/sites/#{site[:folder]}/settings.#{stage_name}.php"
+        dest    = "#{app_path}/sites/#{site[:folder]}/settings.php"
         run "#{try_sudo}  cp #{source} #{dest}"
       end
     end
@@ -121,7 +121,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     # @TODO use generic settings and insert data from deploy-configs
     desc "Use the stage-specific .htaccess #{sites}"
     task :stage_htaccess do
-      source  = "#{app_path}/.htaccess.#{stage_name}" 
+      source  = "#{app_path}/.htaccess.#{stage_name}"
       dest    = "#{app_path}/.htaccess"
       run "#{try_sudo}  cp #{source} #{dest}"
     end
@@ -143,46 +143,51 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
    end
-  
+
   namespace :drush do
 
     desc "Backup the database"
     task :backupdb, :on_error => :continue do
-      sites.each do |site_folder|
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} bam-backup db #{backup_dest}"
+      sites.each do |site|
+        uri = site[:uri].empty? ? '' : "-l #{site[:uri]}"
+        run "#{drush_cmd} #{uri} -r #{current_path}/app bam-backup db #{backup_dest}"
       end
     end
 
     desc "Run Drupal database migrations if required"
     task :updatedb, :on_error => :continue do
-      sites.each do |site_folder|
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} updatedb -y"
+      sites.each do |site|
+        uri = site[:uri].empty? ? '' : "-l #{site[:uri]}"
+        run "#{drush_cmd} #{uri} -r #{app_path} updatedb -y"
       end
     end
 
     desc "Clear the drupal cache"
     task :cache_clear, :on_error => :continue do
-      sites.each do |site_folder|
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} cc all"
+      sites.each do |site|
+        uri = site[:uri].empty? ? '' : "-l #{site[:uri]}"
+        run "#{drush_cmd} #{uri} -r #{app_path} cc all"
       end
     end
-    
-    desc "Set the site offline"
+
+    desc "Set the current site offline"
     task :site_offline, :on_error => :continue do
-      sites.each do |site_folder|
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset site_offline 1 -y"
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset maintenance_mode 1 -y"
+      sites.each do |site|
+        uri = site[:uri].empty? ? '' : "-l #{site[:uri]}"
+        run "#{drush_cmd} #{uri} -r #{current_path}/app vset site_offline 1 -y"
+        run "#{drush_cmd} #{uri} -r #{current_path}/app vset maintenance_mode 1 -y"
       end
     end
 
     desc "Set the site online"
     task :site_online, :on_error => :continue do
-      sites.each do |site_folder|
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset site_offline 0 -y"
-        run "#{drush_cmd} -r #{app_path}/sites/#{site_folder} vset maintenance_mode 0 -y"
+      sites.each do |site|
+        uri = site[:uri].empty? ? '' : "-l #{site[:uri]}"
+        run "#{drush_cmd} #{uri} -r #{app_path} vset site_offline 0 -y"
+        run "#{drush_cmd} #{uri} -r #{app_path} vset maintenance_mode 0 -y"
       end
     end
 
   end
-  
+
 end
