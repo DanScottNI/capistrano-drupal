@@ -3,7 +3,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   require 'capistrano/recipes/deploy/scm'
   require 'capistrano/recipes/deploy/strategy'
   #require 'capistrano/ext/multistage'
-  
+
   # =========================================================================
   # These variables may be set in the client capfile if their default values
   # are not sufficient.
@@ -11,13 +11,13 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   set :scm, :git
   set :deploy_via, :remote_cache
-  
+
   _cset(:drush_cmd)     { "drush" }
   _cset(:backup_dest)   { "manual" }
-  
+
   set :runner_group,    "www-data"
   set :group_writable,  false
-  
+
   set :site_dirs,     ['files', 'tmp', 'private']
   set :site_files,    ['settings.php']
   set :shared_dirs,   ['files', 'tmp', 'private']
@@ -30,19 +30,21 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Set :multisite to true to trigger multisite processing
   _cset(:multisite)   { false }
-  _cset(:sites)       { ['default'] }
+  _cset(:sites)       { [{folder: 'default', uri:''}] }
 
-  after "deploy:update_code", 
-        "drupal:stage_settings", 
-        "drupal:stage_htaccess", 
-        "drupal:symlink_shared", 
-        "drush:site_offline", 
-        "drush:backupdb", 
-        "drush:updatedb", 
-        "drush:cache_clear", 
+  before "deploy",
+        "drush:site_offline",
+        "drush:backupdb"
+  after "deploy:update_code",
+        "drupal:stage_settings",
+        "drupal:stage_htaccess",
+        "drupal:symlink_shared"
+  after "deploy",
+        "drush:updatedb",
+        "drush:cache_clear",
         "drush:site_online"
   after "deploy", "git:push_deploy_tag"
-  
+
   namespace :deploy do
     desc <<-DESC
       Prepares one or more servers for deployment. Before you can use any \
