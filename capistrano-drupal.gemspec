@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = "capistrano-drupal"
-  s.version = "0.1.91"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Kim Pepper", "t3k4y"]
-  s.date = "2013-04-22"
-  s.description = "A set of tasks for deploying Drupal projects with Capistrano. Includes tasks for configuring apache and mysql"
+  s.date = "2015-02-24"
+  s.description = "A set of tasks for deploying Drupal projects with Capistrano."
   s.email = "tk at ibotic.net"
   s.extra_rdoc_files = [
     "README.markdown"
@@ -20,11 +20,15 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "capistrano-drupal.gemspec",
-    "lib/capistrano-drupal.rb"
+    "lib/capistrano-drupal.rb",
+    "lib/capistrano/tasks/deploy.rake",
+    "lib/capistrano/tasks/drupal.rake",
+    "lib/capistrano/tasks/drush.rake",
+    "lib/capistrano/tasks/git.rake"
   ]
   s.homepage = "http://github.com/t3k4y/capistrano-drupal/"
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.24"
+  #s.rubygems_version = "1.8.24"
   s.summary = "A set of tasks for deploying Drupal projects with Capistrano"
 
   if s.respond_to? :specification_version then

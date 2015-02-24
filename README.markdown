@@ -2,14 +2,11 @@
 
 This gem provides a number of tasks which are useful for deploying Drupal projects. 
 
-Credit goes to railsless-deploy for many ideas here.
-
 ## Installation
 These gems must be installed on your system first.
 
 * capistrano
 * rubygems
-* railsless-deploy
 
 You can check to see a list of installed gems by running this.
 
@@ -39,20 +36,44 @@ Not using Jeweler you can build capistrano-drupal like this:
 
 ## Usage
 
+Open your applications base directory and create a capfile like this:
+
+    $ capify
+
 Open your application's `Capfile` and make it begin like this:
 
-    require 'rubygems'
-    require 'railsless-deploy'
+    # Load DSL and Setup Up Stages
+    require 'capistrano/setup'
+    
     require 'capistrano-drupal'
-    load    'config/deploy'
 
 You should then be able to proceed as you would usually, you may want to familiarise yourself with the truncated list of tasks, you can get a full list with:
 
     $ cap -T
 
-## Roadmap
 
-- Split out the tasks into indivual files/modules
-- Use drush aliases
-- Support install profiles
-- Support composer
+## App-migration to Capistrano 3
+
+#### Capfile 
+
+needs only one require `require 'capistrano-drupal'`
+
+#### deploy.rb 
+
+only needs 
+
+    set :application, 'drupal-x'
+    set :repo_url,    'ssh://x.git'
+    set :user,        'x'
+
+#### stage-settings (i.e. production.rb)
+
+role syntax changed
+
+    role :app, %w{x}
+    role :web, %w{x}
+    role :db,  %w{x}
+
+server syntax added
+
+    server 'x.org', user: fetch(:user), roles: %w{web app}, my_property: :my_value
