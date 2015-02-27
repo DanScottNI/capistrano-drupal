@@ -12,7 +12,6 @@ namespace :deploy do
     will not destroy any deployed revisions or data.
   DESC
 
-
   task  :updated do
     invoke "drush:prev_release_offline"
     invoke "drush:backupdb"
@@ -27,20 +26,28 @@ namespace :deploy do
   task  :finished do
     invoke "drush:site_online"
     invoke "git:push_deploy_tag"
+    invoke "git:version_txt"
   end
 
   task :setup do
     on roles(:app) do
-      dirs = [fetch(:deploy_to), fetch(:releases_path), fetch(:shared_path)].join(' ')
-      execute :mkdir, "-p #{fetch(:releases_path)} #{fetch(:shared_path)}"
-      execute :chown, "-R #{fetch(:user)}:#{fetch(:runner_group)} #{fetch(:deploy_to)}"
-      fetch(:site_dirs).each do |asset|
-        test "if[ ! -d \"#{fetch(:shared_path)}/#{asset}\" ] ; then mkdir #{fetch(:shared_path)}/#{asset}; fi"
-        execute :chmod, "-R g+rw #{fetch(:shared_path)}/#{asset}"
-        execute :chgrp, "-R www-data #{fetch(:shared_path)}/#{asset}"
+      unless  test("[ -d #{releases_path} ]") ||
+              test("[ -d #{shared_path} ]")
+        execute :mkdir, "-p #{releases_path} #{shared_path}"
+        execute :chown, "-R #{fetch(:user)}:#{fetch(:runner_group)} #{fetch(:deploy_to)}"
       end
-      # sub_dirs = shared_children.map { |d| File.join(fetch(:shared_path), d) }
-      # run "chmod 2775 #{sub_dirs.join(' ')}"
+      within shared_path do
+        fetch(:site_dirs).each do |asset|
+          unless test("[ -d #{shared_path}/#{asset} ]")
+            execute :mkdir, "#{asset}"
+          end
+          if test("[ -d #{shared_path}/#{asset} ]")
+            execute :chmod, "-R g+rw #{asset}"
+            execute :chgrp, "-R www-data #{asset}"
+          end
+        end
+      end
     end
   end
+
 end
