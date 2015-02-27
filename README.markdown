@@ -38,7 +38,7 @@ Not using Jeweler you can build capistrano-drupal like this:
 
 Open your applications base directory and create a capfile like this:
 
-    $ capify
+    $ cap install
 
 Open your application's `Capfile` and make it begin like this:
 
@@ -56,7 +56,8 @@ You should then be able to proceed as you would usually, you may want to familia
 
 #### Capfile 
 
-needs only one require `require 'capistrano-drupal'`
+Backup old capfile and `$ cap install`
+Add only one require `require 'capistrano-drupal'`
 
 #### deploy.rb 
 
@@ -65,6 +66,15 @@ only needs
     set :application, 'drupal-x'
     set :repo_url,    'ssh://x.git'
     set :user,        'x'
+
+maybe you want to set the backup destination
+
+    set :backup_dest,   "xxxxxxxx"
+
+or the path to the drush cmd
+
+    set :drush_cmd,     "/home/t3/drush/drush"
+
 
 #### stage-settings (i.e. production.rb)
 
